@@ -1,7 +1,7 @@
 module github.com/rclone/rclone
 module github.com/butts136/rclonedarkibox
 
-go 1.21
+go 1.17
 
 require (
 	bazil.org/fuse v0.0.0-20230120002735-62a210ff1fd5
