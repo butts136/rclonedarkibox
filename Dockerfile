@@ -1,27 +1,30 @@
-FROM golang:alpine AS builder
+# Étape 1 : Utiliser une image de base avec Go pour le builder
+FROM golang:1.21-alpine as builder
 
-COPY . /go/src/github.com/rclone/rclone/
-WORKDIR /go/src/github.com/rclone/rclone/
+# Installer les dépendances nécessaires
+RUN apk --no-cache add ca-certificates fuse3 tzdata make bash gawk git
 
-RUN apk add --no-cache make bash gawk git
-RUN \
-  CGO_ENABLED=0 \
-  make
-RUN ./rclone version
+# Définir le répertoire de travail
+WORKDIR /go/src/github.com/rclone/rclone
 
-# Begin final image
-FROM alpine:latest
+# Copier les fichiers du projet
+COPY . .
 
+# Nettoyer et installer les dépendances, puis construire le projet
+RUN go mod tidy && go mod vendor && CGO_ENABLED=0 make
+
+# Étape 2 : Créer une image légère pour exécuter l'application
+FROM alpine:3.18
+
+# Installer les certificats et fuse
 RUN apk --no-cache add ca-certificates fuse3 tzdata && \
-    echo "user_allow_other" >> /etc/fuse.conf && \
-    go mod tidy && \
-    go mod vendor
+    echo "user_allow_other" >> /etc/fuse.conf
 
+# Copier le binaire rclone de l'étape précédente
 COPY --from=builder /go/src/github.com/rclone/rclone/rclone /usr/local/bin/
 
-RUN addgroup -g 1009 rclone && adduser -u 1009 -Ds /bin/sh -G rclone rclone
+# Exposer les ports nécessaires (si requis)
+EXPOSE 8080
 
-ENTRYPOINT [ "rclone" ]
-
-WORKDIR /data
-ENV XDG_CONFIG_HOME=/config
+# Point d'entrée pour l'image
+ENTRYPOINT ["rclone"]
