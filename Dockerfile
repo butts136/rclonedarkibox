@@ -13,8 +13,9 @@ RUN ./rclone version
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates fuse3 tzdata && \
-  echo "user_allow_other" >> /etc/fuse.conf
-  go mod tidy && go mod vendor
+    echo "user_allow_other" >> /etc/fuse.conf && \
+    go mod tidy && \
+    go mod vendor
 
 COPY --from=builder /go/src/github.com/rclone/rclone/rclone /usr/local/bin/
 
