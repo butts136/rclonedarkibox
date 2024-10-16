@@ -1,4 +1,5 @@
 module github.com/rclone/rclone
+module github.com/butts136/rclonedarkibox
 
 go 1.21
 
