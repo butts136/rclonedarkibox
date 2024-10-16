@@ -90,6 +90,7 @@ require (
 	gopkg.in/validator.v2 v2.0.1
 	gopkg.in/yaml.v2 v2.4.0
 	storj.io/uplink v1.13.1
+	github.com/butts136/rclonedarkibox/backend/darkibox v0.0.0
 )
 
 require (
